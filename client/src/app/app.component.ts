@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './auth/services/auth.service';
+import { currentUser } from '../../../server/src/controllers/users';
 
 @Component({
   selector: 'app-root',
@@ -10,8 +11,8 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.authService.getCurrentUser().subscribe({
       
-      next: (res) => {
-      console.log('res', res)
+      next: (currentUser) => {
+      this.authService.setCurrentUser(currentUser);
       },
       error: (err) => {
         console.log('err', err)
@@ -20,3 +21,9 @@ export class AppComponent implements OnInit {
     })
   }
 }
+
+/* 
+next: (res) => {
+      console.log('res', res)
+      },
+*/

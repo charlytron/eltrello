@@ -3,8 +3,8 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { CurrentUserInterface } from "../types/currentUser.interface";
 import { HttpClient } from "@angular/common/http";
 import { environment } from 'src/environments/environment';
-import { register, currentUser } from '../../../../../server/src/controllers/users';
 import { RegisterRequestInterface } from '../types/registerRequest.interface';
+import { LoginRequestInterface } from "../types/loginRequestInterface";
 
 @Injectable()
 export class AuthService {
@@ -21,6 +21,13 @@ export class AuthService {
         const url = environment.apiUrl + '/users'
         return this.http.post<CurrentUserInterface>(url, registerRequest)
     }
+
+    login(loginRequest: LoginRequestInterface): Observable<CurrentUserInterface> {
+        const url = environment.apiUrl + '/users/login'
+        return this.http.post<CurrentUserInterface>(url, loginRequest)
+    }
+
+
 
     setToken(currentUser: CurrentUserInterface): void {
         localStorage.setItem('token', currentUser.token);

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import UserModel from "../models/user";
 import { UserDocument } from "../types/user.interface";
 import { Error } from "mongoose";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { secret } from "../config";
 import { ExpressRequestInterface } from "../types/expressRequest.interface";
 
@@ -12,7 +12,7 @@ const normalizeUser = (user: UserDocument) => {
     email: user.email,
     username: user.username,
     id: user.id,
-    token,
+    token: `Bearer ${token}`,
   };
 };
 
