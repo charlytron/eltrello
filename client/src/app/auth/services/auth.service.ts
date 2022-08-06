@@ -11,6 +11,14 @@ export class AuthService {
     currentUser$ = new BehaviorSubject<CurrentUserInterface | null | undefined>(
         undefined
     );
+    
+    isLogged$ = this.currentUser$.pipe(
+        filter((currentUser) => currentUser !== undefined),
+        map(Boolean)
+    );
+    
+
+
     constructor(private http: HttpClient) {}
     getCurrentUser(): Observable<CurrentUserInterface> {
         const url = environment.apiUrl +  '/user'
