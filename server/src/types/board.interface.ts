@@ -7,4 +7,5 @@ export interface Board {
     userId: Schema.Types.ObjectId;
 }
 
-export interface BoardDocument extends Document, Board {}
+export interface BoardDocument extends 
+Document, Board {}

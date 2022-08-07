@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 app.post('/api/users', usersController.register);
 app.post('/api/users/login', usersController.login);
 app.get('/api/user', authMiddleware, usersController.currentUser);
-app.get('/api/boards', authMiddleware, boardsController.getBoard);
+app.get('/api/boards', authMiddleware, boardsController.getBoards);
 
 io.on('connection', () => {
     console.log('a user connected');
