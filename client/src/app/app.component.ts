@@ -18,11 +18,7 @@ export class AppComponent implements OnInit {
         console.log('err', err)
         this.authService.setCurrentUser(null)
       },
-    });
-
-    this.authService.currentUser$.subscribe(res => {
-      console.log('res', res)
-    })
+    });  
   }
 }
 
