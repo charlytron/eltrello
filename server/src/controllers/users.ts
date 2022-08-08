@@ -19,7 +19,7 @@ const normalizeUser = (user: UserDocument) => {
 export const register = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const newUser = new UserModel({
