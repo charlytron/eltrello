@@ -17,7 +17,9 @@ export class BoardsComponent implements OnInit{
     }
 
     createBoard(title: string): void {
-        console.log('title', title);
+        this.BoardsService.createBoard(title).subscribe((createdBoard) =>{
+            this.boards = [...this.boards, createdBoard];
+        })
     }
 }
     
