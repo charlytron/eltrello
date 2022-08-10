@@ -24,7 +24,7 @@ import { BoardModule } from './board/board.module';
     HomeModule,
     BoardsModule,
     InlineFormModule,
-    BoardModule
+    BoardModule,
   ],
   providers: [
     {
