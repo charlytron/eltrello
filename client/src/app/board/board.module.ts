@@ -20,6 +20,5 @@ const routes: Routes = [
   declarations: [BoardComponent],
   providers: [BoardService],
 })
-export class BoardModule {
 
-}
+export class BoardModule {}
