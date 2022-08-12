@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import * as usersController from "./controllers/users";
 import * as boardsController from "./controllers/boards";
+import * as columnsController from "./controllers/columns";
 import bodyParser from 'body-parser';
 import authMiddleware from './middlewares/auth';
 import cors from 'cors';
@@ -41,31 +42,33 @@ app.post('/api/users/login', usersController.login);
 app.get('/api/user', authMiddleware, usersController.currentUser);
 app.get('/api/boards', authMiddleware, boardsController.getBoards);
 app.get('/api/boards/:boardId', authMiddleware, boardsController.getBoard);
+app.get('/api/boards/:boardId/columns', authMiddleware, columnsController.getColumns);
 app.post('/api/boards', authMiddleware, boardsController.createBoard);
 
 io.use(async (socket: Socket, next) => {
   try {
     const token = (socket.handshake.auth.token as string) ?? "";
-    const data = jwt.verify(token.split('')[1], secret) as {
+    const data = jwt.verify(token.split(" ")[1], secret) as {
       id: string;
       email: string;
     };
     const user = await User.findById(data.id);
+
     if (!user) {
-      return next(new Error('Authentication error'));
+      return next(new Error("Authentication error"));
     }
     socket.user = user;
+    next();
   } catch (err) {
-    next(new Error('Authentication error'));
+    next(new Error("Authentication error"));
   }
-
-}).on('connection', (socket) => {
+}).on("connection", (socket) => {
   socket.on(SocketEventsEnum.boardsJoin, (data) => {
     boardsController.joinBoard(io, socket, data);
-  })
+  });
   socket.on(SocketEventsEnum.boardsLeave, (data) => {
     boardsController.leaveBoard(io, socket, data);
-  })
+  });
 });
 
 mongoose.connect('mongodb://localhost:27017/eltrello').then(() => {
