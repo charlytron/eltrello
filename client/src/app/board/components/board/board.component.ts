@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
-import { filter, Observable } from 'rxjs';
+import { combineLatest, filter, map, Observable } from 'rxjs';
 import { BoardsService } from 'src/app/shared/services/boards.service';
 import { BoardInterface } from 'src/app/shared/types/board.interface';
 import { BoardService } from '../../services/board.service';
 import { SocketService } from 'src/app/shared/services/socket.service';
 import { SocketEventsEnum } from 'src/app/shared/types/socketEvents.enum';
+import { ColumnInterface } from '../../../shared/types/column.interface';
+import { ColumnsService } from '../../../shared/services/columns.service';
 
 @Component({
   selector: 'board',
@@ -13,7 +15,10 @@ import { SocketEventsEnum } from 'src/app/shared/types/socketEvents.enum';
 })
 export class BoardComponent implements OnInit {
   boardId: string;
-  board$: Observable<BoardInterface>;
+  data$: Observable<{ 
+    board: BoardInterface, 
+    columns: ColumnInterface[] 
+  }>;
 
   constructor(
     private boardsService: BoardsService,
@@ -21,6 +26,7 @@ export class BoardComponent implements OnInit {
     private router: Router,
     private boardService: BoardService,
     private socketService: SocketService,
+    private columnsService: ColumnsService,
   ) {
     const boardId = this.route.snapshot.paramMap.get('boardId');
 
@@ -29,7 +35,13 @@ export class BoardComponent implements OnInit {
     }
 
     this.boardId = boardId;
-    this.board$ = this.boardService.board$.pipe(filter(Boolean));
+    this.data$ = combineLatest([
+      this.boardService.board$.pipe(filter(Boolean)),
+      this.boardService.columns$
+    ]).pipe(map(([board, columns]) => ({ 
+      board, 
+      columns }))
+      );
   }
 
   ngOnInit(): void {
@@ -53,12 +65,10 @@ export class BoardComponent implements OnInit {
     this.boardsService.getBoard(this.boardId).subscribe((board) => {
       this.boardService.setBoard(board);
     });
+    this.columnsService.getColumns(this.boardId).subscribe((columns) => {
+      this.boardService.setColumns(columns);
+    })
+
   }
 
-  test(): void {
-    this.socketService.emit('columns:create', {
-      boardId: this.boardId, 
-      title: 'foobs',
-    });
-  }
 }
