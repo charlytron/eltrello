@@ -8,6 +8,7 @@ import { SocketService } from 'src/app/shared/services/socket.service';
 import { SocketEventsEnum } from 'src/app/shared/types/socketEvents.enum';
 import { ColumnInterface } from '../../../shared/types/column.interface';
 import { ColumnsService } from '../../../shared/services/columns.service';
+import { ColumnInputInterface } from 'src/app/shared/types/columnInput.interface';
 
 
 @Component({
@@ -17,8 +18,8 @@ import { ColumnsService } from '../../../shared/services/columns.service';
 export class BoardComponent implements OnInit {
   boardId: string;
   data$: Observable<{ 
-    board: BoardInterface, 
-    columns: ColumnInterface[] 
+    board: BoardInterface; 
+    columns: ColumnInterface[]; 
   }>;
 
   constructor(
@@ -73,7 +74,11 @@ export class BoardComponent implements OnInit {
   }
 
   createColumn(title: string): void {
-    console.log('creating column', title);
+    // console.log('creating column', title);
+    const columnInput: ColumnInputInterface = {
+      title,
+      boardId: this.boardId,
+  };
+  this.columnsService.createColumn(columnInput);
   }
-
 }
