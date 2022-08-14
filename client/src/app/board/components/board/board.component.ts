@@ -9,6 +9,7 @@ import { SocketEventsEnum } from 'src/app/shared/types/socketEvents.enum';
 import { ColumnInterface } from '../../../shared/types/column.interface';
 import { ColumnsService } from '../../../shared/services/columns.service';
 
+
 @Component({
   selector: 'board',
   templateUrl: './board.component.html',
@@ -69,6 +70,10 @@ export class BoardComponent implements OnInit {
       this.boardService.setColumns(columns);
     })
 
+  }
+
+  createColumn(title: string): void {
+    console.log('creating column', title);
   }
 
 }
