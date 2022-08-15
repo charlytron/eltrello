@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import * as usersController from "./controllers/users";
 import * as boardsController from "./controllers/boards";
 import * as columnsController from "./controllers/columns";
+import * as tasksController from "./controllers/tasks";
 import bodyParser from 'body-parser';
 import authMiddleware from './middlewares/auth';
 import cors from 'cors';
@@ -43,6 +44,11 @@ app.get('/api/user', authMiddleware, usersController.currentUser);
 app.get('/api/boards', authMiddleware, boardsController.getBoards);
 app.get('/api/boards/:boardId', authMiddleware, boardsController.getBoard);
 app.get('/api/boards/:boardId/columns', authMiddleware, columnsController.getColumns);
+app.get(
+  '/api/boards/:boardId/tasks', 
+  authMiddleware, 
+  tasksController.getTasks
+  );
 app.post('/api/boards', authMiddleware, boardsController.createBoard);
 
 io.use(async (socket: Socket, next) => {
@@ -71,7 +77,10 @@ io.use(async (socket: Socket, next) => {
   });
   socket.on(SocketEventsEnum.columnsCreate, (data) => {
     columnsController.createColumn(io, socket, data);
-  })
+  });
+  socket.on(SocketEventsEnum.tasksCreate, (data) => {
+    tasksController.createTask(io, socket, data);
+  });
 });
 
 mongoose.connect('mongodb://localhost:27017/eltrello').then(() => {

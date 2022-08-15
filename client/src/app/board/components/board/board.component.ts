@@ -74,7 +74,6 @@ export class BoardComponent implements OnInit {
   }
 
   createColumn(title: string): void {
-    // console.log('creating column', title);
     const columnInput: ColumnInputInterface = {
       title,
       boardId: this.boardId,
