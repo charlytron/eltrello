@@ -31,4 +31,13 @@ export class BoardService {
       this.board$.next(null)
       this.socketService.emit(SocketEventsEnum.boardsLeave, {boardId})
 }
+addColumn(column: ColumnInterface): void {
+  const updatedColumns = [...this.columns$.getValue(), column];
+  this.columns$.next(updatedColumns);
+}
+
+addTask(task: TaskInterface): void {
+  const updatedTasks = [...this.tasks$.getValue(), task];
+  this.tasks$.next(updatedTasks);
+}
 }
