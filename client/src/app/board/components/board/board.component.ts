@@ -23,8 +23,8 @@ import { TaskInputInterface } from 'src/app/shared/types/taskInput.interface';
 })
 export class BoardComponent implements OnInit {
   boardId: string;
-  data$: Observable<{ 
-    board: BoardInterface; 
+  data$: Observable<{
+    board: BoardInterface;
     columns: ColumnInterface[];
     tasks: TaskInterface[];
   }>;
@@ -37,7 +37,7 @@ export class BoardComponent implements OnInit {
     private socketService: SocketService,
     private columnsService: ColumnsService,
     private tasksService: TasksService,
-    
+
   ) {
     const boardId = this.route.snapshot.paramMap.get('boardId');
 
@@ -51,17 +51,17 @@ export class BoardComponent implements OnInit {
       this.boardService.columns$,
       this.boardService.tasks$,
     ]).pipe(
-      map(([board, columns, tasks]) => ({ 
-        board, 
+      map(([board, columns, tasks]) => ({
+        board,
         columns,
         tasks,
-     }))
-      );
+      }))
+    );
   }
 
   ngOnInit(): void {
-    this.socketService.emit(SocketEventsEnum.boardsJoin, { 
-      boardId: this.boardId 
+    this.socketService.emit(SocketEventsEnum.boardsJoin, {
+      boardId: this.boardId
     });
     this.fetchData();
     this.initializeListeners()
@@ -81,23 +81,33 @@ export class BoardComponent implements OnInit {
         this.boardService.addColumn(column);
       })
 
-      this.socketService
+    this.socketService
+      .listen<string>(SocketEventsEnum.columnsDeleteSuccess)
+      .subscribe((columnId) => {
+        this.boardService.deleteColumn(columnId);
+      })
+
+    this.socketService
       .listen<TaskInterface>(SocketEventsEnum.tasksCreateSuccess)
       .subscribe((task) => {
         this.boardService.addTask(task);
       })
 
-      this.socketService
+    this.socketService
       .listen<BoardInterface>(SocketEventsEnum.boardsUpdateSuccess)
       .subscribe((updatedBoard) => {
         this.boardService.updateBoard(updatedBoard);
       })
 
-      this.socketService
+    this.socketService
       .listen<void>(SocketEventsEnum.boardsDeleteSuccess)
       .subscribe(() => {
         this.router.navigate(['/boards']);
       })
+
+
+
+
   }
 
   fetchData(): void {
@@ -117,8 +127,8 @@ export class BoardComponent implements OnInit {
     const columnInput: ColumnInputInterface = {
       title,
       boardId: this.boardId,
-  };
-  this.columnsService.createColumn(columnInput);
+    };
+    this.columnsService.createColumn(columnInput);
   }
 
   createTask(title: string, columnId: string): void {
@@ -126,8 +136,8 @@ export class BoardComponent implements OnInit {
       title,
       boardId: this.boardId,
       columnId,
-  };
-  this.tasksService.createTask(taskInput);
+    };
+    this.tasksService.createTask(taskInput);
   }
 
   getTasksByColumn(columnId: string, tasks: TaskInterface[]): TaskInterface[] {
@@ -139,8 +149,12 @@ export class BoardComponent implements OnInit {
   }
 
   deleteBoard(): void {
-    if(confirm('Are you sure you want to delete this board?')) {
-    this.boardsService.deleteBoard(this.boardId);
+    if (confirm('Are you sure you want to delete this board?')) {
+      this.boardsService.deleteBoard(this.boardId);
+    }
   }
+
+  deleteColumn(columnId: string): void {
+    this.columnsService.deleteColumn(this.boardId, columnId);
   }
 }

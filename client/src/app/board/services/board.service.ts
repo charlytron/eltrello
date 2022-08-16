@@ -6,6 +6,7 @@ import { SocketEventsEnum } from '../../shared/types/socketEvents.enum';
 import { ColumnInterface } from '../../shared/types/column.interface';
 import { TaskInterface } from "src/app/shared/types/task.interface";
 
+
 @Injectable()
 export class BoardService {
     board$ = new BehaviorSubject<BoardInterface | null>(null);
@@ -47,5 +48,10 @@ updateBoard(updatedBoard: BoardInterface): void {
     throw new Error('Board is not initialized')
   }
   this.board$.next({...board, title: updatedBoard.title})
+}
+
+deleteColumn(columnId: string): void {
+  const updatedColumns = this.columns$.getValue().filter(column => column.id !== columnId)
+  this.columns$.next(updatedColumns)
 }
 }
