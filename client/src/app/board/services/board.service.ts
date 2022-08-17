@@ -49,6 +49,15 @@ updateBoard(updatedBoard: BoardInterface): void {
   }
   this.board$.next({...board, title: updatedBoard.title})
 }
+updateColumn(updatedColumn: ColumnInterface): void {
+  const updatedColumns = this.columns$.getValue().map(column => {
+    if (column.id === updatedColumn.id) {
+      return {...column, title: updatedColumn.title}
+    }
+    return column
+  });
+  this.columns$.next(updatedColumns)
+}
 
 deleteColumn(columnId: string): void {
   const updatedColumns = this.columns$.getValue().filter(column => column.id !== columnId)

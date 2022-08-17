@@ -7,18 +7,23 @@
       [defaultText]="data.board.title"
       [title]="data.board.title"
       (handleSubmit)="updateBoardName($event)"
-    >
-    </inline-form>
-    <div class="delete-board" (click)="deleteBoard()">Delete Board</div>
+    ></inline-form>
+    <div class="delete-board" (click)="deleteBoard()">Delete board</div>
   </div>
   <div class="columns">
     <div class="column" *ngFor="let column of data.columns">
-      <div class="column-title">{{ column.title }} 
-        <img 
-          src="/assets/close_icon.svg" 
-          class="column-delete-icon" 
+      <div class="column-title">
+        <inline-form
+          class="edit-column-form"
+          [defaultText]="column.title"
+          [title]="column.title"
+          (handleSubmit)="updateColumnName($event, column.id)"
+        ></inline-form>
+        <img
+          src="/assets/close_icon.svg"
+          class="column-delete-icon"
           (click)="deleteColumn(column.id)"
-        >
+        />
       </div>
       <div
         *ngFor="let task of getTasksByColumn(column.id, data.tasks)"

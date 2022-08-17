@@ -2,20 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { combineLatest, filter, map, Observable } from 'rxjs';
 import { BoardsService } from 'src/app/shared/services/boards.service';
-import { BoardInterface } from 'src/app/shared/types/board.interface';
-import { BoardService } from '../../services/board.service';
+import { ColumnsService } from 'src/app/shared/services/columns.service';
 import { SocketService } from 'src/app/shared/services/socket.service';
-import { SocketEventsEnum } from 'src/app/shared/types/socketEvents.enum';
-import { ColumnInterface } from '../../../shared/types/column.interface';
-import { ColumnsService } from '../../../shared/services/columns.service';
-import { ColumnInputInterface } from 'src/app/shared/types/columnInput.interface';
 import { TasksService } from 'src/app/shared/services/tasks.service';
+import { BoardInterface } from 'src/app/shared/types/board.interface';
+import { ColumnInterface } from 'src/app/shared/types/column.interface';
+import { ColumnInputInterface } from 'src/app/shared/types/columnInput.interface';
+import { SocketEventsEnum } from 'src/app/shared/types/socketEvents.enum';
 import { TaskInterface } from 'src/app/shared/types/task.interface';
 import { TaskInputInterface } from 'src/app/shared/types/taskInput.interface';
-
-
-
-
+import { BoardService } from '../../services/board.service';
 
 @Component({
   selector: 'board',
@@ -36,8 +32,7 @@ export class BoardComponent implements OnInit {
     private boardService: BoardService,
     private socketService: SocketService,
     private columnsService: ColumnsService,
-    private tasksService: TasksService,
-
+    private tasksService: TasksService
   ) {
     const boardId = this.route.snapshot.paramMap.get('boardId');
 
@@ -61,53 +56,54 @@ export class BoardComponent implements OnInit {
 
   ngOnInit(): void {
     this.socketService.emit(SocketEventsEnum.boardsJoin, {
-      boardId: this.boardId
+      boardId: this.boardId,
     });
     this.fetchData();
-    this.initializeListeners()
+    this.initializeListeners();
   }
 
   initializeListeners(): void {
-    this.router.events.subscribe(event => {
+    this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
-        console.log('leaving a page');
         this.boardService.leaveBoard(this.boardId);
       }
-    })
+    });
 
     this.socketService
       .listen<ColumnInterface>(SocketEventsEnum.columnsCreateSuccess)
       .subscribe((column) => {
         this.boardService.addColumn(column);
-      })
+      });
 
     this.socketService
       .listen<string>(SocketEventsEnum.columnsDeleteSuccess)
       .subscribe((columnId) => {
         this.boardService.deleteColumn(columnId);
-      })
+      });
 
     this.socketService
       .listen<TaskInterface>(SocketEventsEnum.tasksCreateSuccess)
       .subscribe((task) => {
         this.boardService.addTask(task);
-      })
+      });
 
     this.socketService
       .listen<BoardInterface>(SocketEventsEnum.boardsUpdateSuccess)
       .subscribe((updatedBoard) => {
         this.boardService.updateBoard(updatedBoard);
-      })
+      });
+
+    this.socketService
+      .listen<ColumnInterface>(SocketEventsEnum.columnsUpdateSuccess)
+      .subscribe((updatedColumn) => {
+        this.boardService.updateColumn(updatedColumn);
+      });
 
     this.socketService
       .listen<void>(SocketEventsEnum.boardsDeleteSuccess)
       .subscribe(() => {
-        this.router.navigate(['/boards']);
-      })
-
-
-
-
+        this.router.navigateByUrl('/boards');
+      });
   }
 
   fetchData(): void {
@@ -119,8 +115,7 @@ export class BoardComponent implements OnInit {
     });
     this.tasksService.getTasks(this.boardId).subscribe((tasks) => {
       this.boardService.setTasks(tasks);
-    })
-
+    });
   }
 
   createColumn(title: string): void {
@@ -141,7 +136,7 @@ export class BoardComponent implements OnInit {
   }
 
   getTasksByColumn(columnId: string, tasks: TaskInterface[]): TaskInterface[] {
-    return tasks.filter(task => task.columnId === columnId);
+    return tasks.filter((task) => task.columnId === columnId);
   }
 
   updateBoardName(boardName: string): void {
@@ -149,12 +144,18 @@ export class BoardComponent implements OnInit {
   }
 
   deleteBoard(): void {
-    if (confirm('Are you sure you want to delete this board?')) {
+    if (confirm('Are you sure you want to delete the board?')) {
       this.boardsService.deleteBoard(this.boardId);
     }
   }
 
   deleteColumn(columnId: string): void {
     this.columnsService.deleteColumn(this.boardId, columnId);
+  }
+
+  updateColumnName(columnName: string, columnId: string): void {
+    this.columnsService.updateColumn(this.boardId, columnId, {
+      title: columnName,
+    });
   }
 }
