@@ -24,7 +24,7 @@
           inputType="textarea"
           [hasButton]="true"
           buttonText="Save"
-          handleSubmit="updateTaskDescription($event)"
+          (handleSubmit)="updateTaskDescription($event)"
         ></inline-form>
       </div>
     </div>
