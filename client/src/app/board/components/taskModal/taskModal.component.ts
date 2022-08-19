@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { map, Observable,filter, combineLatest } from "rxjs";
 import { BoardService } from "../../services/board.service";
 import { TaskInterface } from 'src/app/shared/types/task.interface';
+import { ColumnInterface } from 'src/app/shared/types/column.interface';
+import { FormBuilder } from "@angular/forms";
 
 @Component({
   selector: "task-modal",
@@ -14,9 +16,18 @@ export class TaskModalComponent {
   boardId: string;
   taskId: string;
   task$: Observable<TaskInterface>;
-  data$: Observable<{task: TaskInterface}>
+  data$: Observable<{ task: TaskInterface; columns: ColumnInterface[] }>;
+  columnForm = this.fb.group({
+    columnId: [null],
+  });
 
-  constructor(private route: ActivatedRoute, private router: Router, private boardService: BoardService) {
+  constructor(
+    private route: ActivatedRoute, 
+    private router: Router, 
+    private boardService: BoardService,
+    private fb: FormBuilder
+
+  ) {
     const taskId = this.route.snapshot.paramMap.get('taskId');
     const boardId = this.route.parent?.snapshot.paramMap.get('boardId');
     
@@ -42,6 +53,10 @@ export class TaskModalComponent {
         columns,
       }))
     );
+
+    this.task$.subscribe((task) => {
+      this.columnForm.patchValue({ columnId: task.columnId });
+    });
   }
   
 

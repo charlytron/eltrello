@@ -14,7 +14,13 @@
   </div>
   <div class="task-modal-body">
     <div>
-      <form class="column-select-container">SELECT COLUMN</form>
+      <form [formGroup]="columnForm" class="column-select-container">
+        <select formControlName="columnId" class="column-select">
+          <option *ngFor="let column of data.columns" [ngValue]="column.id">
+            {{ column.title }}
+          </option>
+        </select>  
+      </form>
       <div class="task-modal-description">
         <div class="task-modal-description-label">Description</div>
         <inline-form
