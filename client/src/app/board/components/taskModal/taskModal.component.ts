@@ -1,30 +1,42 @@
-import { Component, HostBinding } from "@angular/core";
+import { Component, HostBinding, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, Observable,filter, combineLatest } from "rxjs";
-import { BoardService } from "../../services/board.service";
+import { BoardService } from '../../services/board.service';
+import {
+  combineLatest,
+  filter,
+  map,
+  Observable,
+  Subject,
+  takeUntil,
+} from 'rxjs';
 import { TaskInterface } from 'src/app/shared/types/task.interface';
+import { FormBuilder } from '@angular/forms';
 import { ColumnInterface } from 'src/app/shared/types/column.interface';
-import { FormBuilder } from "@angular/forms";
+import { TasksService } from 'src/app/shared/services/tasks.service';
+import { FormControl } from '@angular/forms';
+
 
 @Component({
   selector: "task-modal",
   templateUrl: "./taskModal.component.html",
 })
-export class TaskModalComponent {
+export class TaskModalComponent implements OnDestroy{
   @HostBinding('class') classes = 'task-modal';
 
   boardId: string;
   taskId: string;
   task$: Observable<TaskInterface>;
   data$: Observable<{ task: TaskInterface; columns: ColumnInterface[] }>;
-  columnForm = this.fb.group({
-    columnId: [null],
+  columnForm = this.fb.group<{ columnId: FormControl<string | null> }>({
+    columnId: new FormControl(null),
   });
+  unsubscribe$ = new Subject<void>();
 
   constructor(
-    private route: ActivatedRoute, 
-    private router: Router, 
+    private route: ActivatedRoute,
+    private router: Router,
     private boardService: BoardService,
+    private tasksService: TasksService,
     private fb: FormBuilder
 
   ) {
@@ -54,9 +66,21 @@ export class TaskModalComponent {
       }))
     );
 
-    this.task$.subscribe((task) => {
+    this.task$.pipe(takeUntil(this.unsubscribe$)).subscribe((task) => {
       this.columnForm.patchValue({ columnId: task.columnId });
     });
+
+    combineLatest([this.task$, this.columnForm.get('columnId')!.valueChanges
+    ]).subscribe(([task, columnId]) => {
+        if (task.columnId !== columnId) {
+          this.tasksService.updateTask(this.boardId, task.id, { columnId });
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
   
 
@@ -66,9 +90,12 @@ export class TaskModalComponent {
   
     updateTaskName(taskName: string): void {
       console.log('updateTaskName', taskName);
+      this.tasksService.updateTask(this.boardId, this.taskId, { title: taskName });
     }
     updateTaskDescription(taskDescription: string): void {
-      console.log('updateTaskDescription', taskDescription);
+      this.tasksService.updateTask(this.boardId, this.taskId, {
+        description: taskDescription,
+      });
     }
   }
   
