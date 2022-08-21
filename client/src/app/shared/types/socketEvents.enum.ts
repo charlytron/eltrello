@@ -22,4 +22,7 @@ export enum SocketEventsEnum {
   columnsUpdate = 'columns:update',
   columnsUpdateSuccess = 'columns:updateSuccess',
   columnsUpdateFailure = 'columns:updateFailure',
+  tasksDelete = 'tasks:delete',
+  tasksDeleteSuccess = 'tasks:deleteSuccess',
+  tasksDeleteFailure = 'tasks:deleteFailure',
 }
